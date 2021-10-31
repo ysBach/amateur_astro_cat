@@ -7,12 +7,17 @@ Catalogs supported at this moment are [Messier](https://en.wikipedia.org/wiki/Me
 
 
 
+<details><summary>"공개행사"</summary>
+
 This work is derived from the "**서울대학교 천문대 공개행사**" (by SNU astro), a subproject of "**서울대학교 연구성과사회환원 프로그램**" (by SNU)
 
 * "SNU": Seoul National University, South Korea
 * "astro": Department of Physics and Astronomy, Astronomy program
 
 Therefore, the default location/timezone is at Seoul, South Korea.
+
+</details>
+
 
 
 
