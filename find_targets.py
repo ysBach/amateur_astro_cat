@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytz
 from astroplan import plots as aplt
-from astropy.coordinates import EarthLocation, get_body
+from astropy.coordinates import EarthLocation, get_body, SkyCoord
 from astropy.time import Time
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
@@ -24,8 +24,7 @@ except ImportError:
     print("You may want to install `rich` by $ pip install rich")
     pass
 
-# We need to do it in a separate cell. See:
-# https://github.com/jupyter/notebook/issues/3385
+
 plt.style.use('default')
 rcParams.update({
     'font.family': 'Times', 'font.size': 12, 'mathtext.fontset': 'stix',
@@ -99,6 +98,13 @@ p.add_argument("-X", "--airmass", action="store_true",
                help="Whether to use the primary y-axis as airmass (`X`)")
 p.add_argument("-A", "--always-visible", action="store_true",
                help="Whether to discard objects that are not *always* visible during the timespan")
+p.add_argument("-N", "--nickname", action="store_true",
+               help="Use only those that have common nick name.")
+
+p.add_argument("-c", "--currentlocation", action="store_true",
+               help="Use current location and timezone automatically (using http://ip-api.com/json/)")
+p.add_argument("-v", "--verbose", action="store_true",
+               help="Print miscellaneous information")
 
 p.add_argument("-d", "--duration", default=2., type=float,
                help="Duration of the observing run (+- this number) [hour]")
@@ -106,10 +112,6 @@ p.add_argument("-l", "--location", nargs=2, default=[127, 37.5],
                help="(longitude, latitude) in degrees; Used in astropy.coordinates.EarthLocation")
 p.add_argument("-z", "--timezone", default="Asia/Seoul", type=str,
                help="Time zone")
-p.add_argument("-c", "--currentlocation", action="store_true",
-               help="Use current location and timezone automatically (using http://ip-api.com/json/)")
-p.add_argument("-v", "--verbose", action="store_true",
-               help="Print miscellaneous information")
 
 p.add_argument("-a", "--min-alt", default=30., type=float,
                help="Minimum altitude of the object to be drawn [deg]")
@@ -176,10 +178,29 @@ def get_time(YYYY, MM, DD, HH, mm, ss, in_utc):
     return _obstime
 
 
+def parseID(catid):
+    if catid.startswith("M"):
+        catname = "Messier"
+    elif catid.startswith("C"):
+        catname = "Caldwell"
+    else:
+        catname = None
+    return catname
+
+
+def mk_wikilink(catid):
+    catname = parseID(catid)
+    url = f"https://en.wikipedia.org/wiki/{catname}_{catid[1:]}"
+    return f'<a href="{url}" title="Link">link</a>'
+
+
 if __name__ == "__main__":
     if args.verbose:
         print(INFOSTR)
         print(args)
+
+    TOP = Path(__file__).parent
+    FIGDIR = str(TOP/"figs")
 
     # == Get location and time information ================================================================= #
     lon, lat, tz = get_geoloc(args.currentlocation, args.verbose)
@@ -199,37 +220,24 @@ if __name__ == "__main__":
     obs = ap.Observer(location=loc, timezone=tz)
 
     # == Prepare catalog =================================================================================== #
-    cat = pd.read_csv(Path(__file__).parent/"amastro_catalog.csv", delimiter='\t', comment="#")
+    cat = pd.read_csv(TOP/"amastro_catalog_radec.csv", delimiter=',', comment="#")
     if not args.Messier:
         cat = cat[~cat["ID"].str.startswith("M")]
     if not args.Caldwell:
         cat = cat[~cat["ID"].str.startswith("C")]
+    if args.nickname:
+        cat = cat[cat["Name"].notna()]
+
     if args.targets is not None:
         cat = cat[cat["ID"].isin(args.targets)]
 
+    if args.verbose:
+        print(f"{len(cat)} objects are selected by the user.")
+
+    cat.drop(columns=["Distance (kly)", "Constellation"], inplace=True)
     cat.sort_values(by="Type", inplace=True)
-
-    # == Find astrometric information of targets (one time only) =========================================== #
-    coo = []
-    # Once it is done, the info will be cached to the astropy cache directory.
-    # You may clean it by astropy.utils.clear_download_cache()
-    # See https://docs.astropy.org/en/stable/utils/index.html
-    for _, row in cat.iterrows():
-        catid = row['ID']
-        othid = row["Other ID"]
-        if not isinstance(othid, float):  # if it was a float, it means it was a NaN.
-            othid = othid.split(" & ")[0]
-
-        try:
-            _coo = ap.FixedTarget.from_name(catid)
-        except:  # whatever Error occurs...
-            _coo = ap.FixedTarget.from_name(othid)
-        _coo.name = catid + f"({row['Type']})"
-        coo.append(_coo)
-
-    coo = np.array(coo)
-    cat["RA"] = [_coo.ra.deg for _coo in coo]
-    cat["DEC"] = [_coo.dec.deg for _coo in coo]
+    coo = np.array([ap.FixedTarget(SkyCoord(ra=_a*u.deg, dec=_d*u.deg), name=f"{_id} ({_t})")
+                    for _a, _d, _id, _t in zip(cat["RA"], cat["DEC"], cat["ID"], cat["Type"])])
 
     # == Find coordinates of planets ======================================================================= #
     coo_pl = []
@@ -262,9 +270,14 @@ if __name__ == "__main__":
     coo_up = coo[upmask]
     cat_up = cat[upmask]
 
-    cat_up
+    cat_up["wiki"] = cat_up["ID"].apply(mk_wikilink)
+    cat_up["lowres"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">')
+    cat_up["DSS"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=250px>')
+    cat_up["DSS-zscale"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=250px>')
+    if args.verbose:
+        print(f"{len(cat_up)} objects are visible by the user's criteria.")
     if args.output is not None:
-        cat_up.to_html(args.output, index=False)
+        cat_up.to_html(args.output, index=False, escape=False)
         if args.verbose:
             print(f"Catalog saved to {args.output}")
 
@@ -288,6 +301,8 @@ if __name__ == "__main__":
 
     upmask_pl = check_observable(args.min_alt_pl, targets=coo_pl, **observable_kw)
     coo_pl_up = coo_pl[upmask_pl]
+    if args.verbose:
+        print(f"{len(coo_pl_up)} planets are visible under the user's criteria.")
     for _coo in coo_pl_up:
         aplt.plot_altitude(targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
                            style_kwargs=dict(color=PLANETS[_coo.name], linewidth=6, alpha=0.3))
@@ -304,3 +319,43 @@ if __name__ == "__main__":
                title="<Catalog ID> (<Type>). Use `-v` for detailed explanation for Type.")
     plt.tight_layout()
     plt.show()
+
+
+# %%
+# import requests
+# import re
+# from pathlib import Path
+# from bs4 import BeautifulSoup
+# import urllib.request
+
+
+# SAVEDIR = Path("figs/")
+# SAVEDIR.mkdir(exist_ok=True)
+
+# for m_or_c in ["Messier", "Caldwell"]:
+#     for i in range(110):
+#         name_ID = f"{m_or_c}_{i + 1}"
+#         savepath = SAVEDIR/f"{name_ID}.jpg"
+#         print(name_ID)
+#         if savepath.exists():
+#             continue
+#         if name_ID == "Messier_102":
+#             # Specifically, M102 is NGC 5866  (see https://en.wikipedia.org/wiki/Messier_102)
+#         url = "https://en.wikipedia.org/wiki/NGC_5866"
+#         else:
+#             url = f"https://en.wikipedia.org/wiki/{name_ID}"
+#         r = requests.get(url)
+#         soup = BeautifulSoup(r.text, 'html.parser')
+#         try:
+#             infoimgstr = soup.find_all(class_='infobox-image')[0].find_all('img')
+#         except IndexError:  # no class "infobox-image"
+#             infoimgstr = str(soup.find_all(class_='infobox')[0].find_all("img"))
+#         small_img_url = "https:" + re.split(r"src=", str(infoimgstr))[1][1:].split('"')[0]
+
+#         print(small_img_url)
+#         urllib.request.urlretrieve(small_img_url, savepath)
+#         # re.compile(r"src=").search(str(infoimg)).span
+#         # with open(f"figs/{name_ID}.jpg", "wb") as f:
+#         #     f.write(requests.get(small_img_url).content)
+
+# %%
