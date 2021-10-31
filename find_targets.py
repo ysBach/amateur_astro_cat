@@ -100,6 +100,8 @@ p.add_argument("-A", "--always-visible", action="store_true",
                help="Whether to discard objects that are not *always* visible during the timespan")
 p.add_argument("-N", "--nickname", action="store_true",
                help="Use only those that have common nick name.")
+p.add_argument("-E", "--type-exclude", action="store_true",
+               help="Whether the -T (--types) is for exclusion")
 
 p.add_argument("-c", "--currentlocation", action="store_true",
                help="Use current location and timezone automatically (using http://ip-api.com/json/)")
@@ -117,8 +119,10 @@ p.add_argument("-a", "--min-alt", default=30., type=float,
                help="Minimum altitude of the object to be drawn [deg]")
 p.add_argument("-p", "--min-alt-pl", default=25., type=float,
                help="Minimum altitude of the planetary objects to be drawn [deg]")
-
-p.add_argument("-t", "--targets", nargs='+', default=None)
+p.add_argument("-T", "--types", default=None, nargs='+',
+               help="Target types to be drawn or excluded (exclusion by -E)")
+p.add_argument("-t", "--targets", nargs='+', default=None,
+               help="Target names to be drawn")
 p.add_argument("-o", "--output", default=None, help="HTML name to save DataFrame")
 
 args = p.parse_args()
@@ -221,15 +225,33 @@ if __name__ == "__main__":
 
     # == Prepare catalog =================================================================================== #
     cat = pd.read_csv(TOP/"amastro_catalog_radec.csv", delimiter=',', comment="#")
-    if not args.Messier:
-        cat = cat[~cat["ID"].str.startswith("M")]
-    if not args.Caldwell:
-        cat = cat[~cat["ID"].str.startswith("C")]
-    if args.nickname:
-        cat = cat[cat["Name"].notna()]
-
     if args.targets is not None:
         cat = cat[cat["ID"].isin(args.targets)]
+        if args.verbose:
+            print(f"Choosing only thses: {args.targets}")
+    else:
+        if not args.Messier:
+            if args.verbose:
+                print("Messier objects are ignored.")
+            cat = cat[~cat["ID"].str.startswith("M")]
+        if not args.Caldwell:
+            if args.verbose:
+                print("Caldwell objects are ignored.")
+            cat = cat[~cat["ID"].str.startswith("C")]
+        if args.types is not None:
+            if args.type_exclude:
+                cat = cat[~cat["Type"].isin(args.types)]
+                if args.verbose:
+                    print(f"Following types will be ignored: {args.types}")
+            else:
+                cat = cat[cat["Type"].isin(args.types)]
+                if args.verbose:
+                    print(f"Only take the following types: {args.types}")
+
+        if args.nickname:
+            if args.verbose:
+                print("Only those with common nicknames are selected.")
+            cat = cat[cat["Name"].notna()]
 
     if args.verbose:
         print(f"{len(cat)} objects are selected by the user.")
