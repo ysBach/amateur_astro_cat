@@ -42,7 +42,7 @@ $ conda install -c astropy astroplan
 
 
 
-To use this simple python script, du
+To use this simple python script,
 
 ```
 $ cd <where you want to save it>
