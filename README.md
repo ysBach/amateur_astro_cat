@@ -28,9 +28,9 @@ Default location at Seoul, South Korea.
 
 
 
-### Install at once
+### Install 
 
-First, install Anaconda distribution. Then all may have been installed, except for `astroplan`. Install it by:
+First, install Anaconda python distribution. Then all may have been installed, except for `astroplan`. Install it by:
 
 ```
 $ conda install -c astropy astroplan
@@ -38,13 +38,30 @@ $ conda install -c astropy astroplan
 
 
 
-Package `rich` is used for nothing but nicer output on terminal. You may install by `pip install rich`, but it is **not necessary**.
+(OPTIONAL: Package `rich` is used for nothing but nicer output on terminal. You may install by `pip install rich`, but it is **not necessary**.)
+
+
+
+To use this simple python script, du
+
+```
+$ cd <where you want to save it>
+$ git clone https://github.com/ysBach/find_amateur_astro_target.git
+$ cd find_amateur_astro_target
+$ python find_targets.py -C  # slightly better
+```
+
+When you run the script for the ***first time***, it will take some time, like ***~ 5 minutes*** (as it tries to query the RA/DEC information of the objects from online).
+
+You may play with it - see the Usage below.
+
+
 
 
 
 ## Usage
 
-When you use this for the ***first time***, it will take some time, like ***~ 5 minutes*** (as it tries to query the RA/DEC information of the objects from `astroquery`)
+When you run the script for the ***first time***, it will take some time, like ***~ 5 minutes*** (as it tries to query the RA/DEC information of the objects from online).
 
 ```
 usage: find_targets.py [-h] [-U] [-M] [-C] [-X] [-A] [-d DURATION] [-l LOCATION LOCATION] [-z TIMEZONE] [-c] [-v] [-a MIN_ALT] [-p MIN_ALT_PL] [-t TARGETS [TARGETS ...]] [-o OUTPUT]
@@ -85,11 +102,23 @@ optional arguments:
 
 
 
-### Example
+## Example
+
+### The simplest example
+
+```
+$ python find_targets.py
+```
+
+It will use all ~200 targets, using the current time ± 2 hour at Seoul. Any object above minimum altitude 30˚ will be plotted.
+
+
+
+### Practical usage for 공진단
 
 First, check for ALL the objects above the horizon on the day. I will test with 
 
-* 2021-11-12 20:30:00 [KST] (given by``2021 11 12 20 30``) 
+* 2021-11-12 20:30:00 [KST] (given by ``2021 11 12 20 30``) 
 * duration of ± 1 hour (given by `-d 1`)
 * do ***NOT*** plot Caldwell catalog (use `-C`)
 * save all target list as ``test.html`` (`-o test.html`)
