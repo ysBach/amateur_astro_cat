@@ -1,21 +1,26 @@
 # find_amateur_astro_target
 Yoonsoo P. Bach (@ysBach)
 
-This work is derived from the "서울대학교 천문대 공개행사", a subproject of "서울대학교 연구성과사회환원 프로그램" at Seoul National University, S. Korea.
-
-
-
-Find which **amateur astronomy targets** that are above the horizon at given time, and showing the altitude/airmass plot.
+Finds which **amateur astronomy targets** that are above the horizon at given time, and showing the altitude/airmass plot.
 
 Catalogs supported at this moment are [Messier](https://en.wikipedia.org/wiki/Messier_object) and [Caldwell](https://en.wikipedia.org/wiki/Caldwell_catalogue).
 
 
 
-Default location at Seoul, South Korea.
+This work is derived from the "**서울대학교 천문대 공개행사**" (by SNU astro), a subproject of "**서울대학교 연구성과사회환원 프로그램**" (by SNU)
+
+* "SNU": Seoul National University, South Korea
+* "astro": Department of Physics and Astronomy, Astronomy program
+
+Therefore, the default location/timezone is at Seoul, South Korea.
 
 
 
-## Dependency
+## Install 
+
+<details> 
+<summary> Dependency </summary>
+You need:
 
 * python 3.6+
 * pytz
@@ -26,20 +31,14 @@ Default location at Seoul, South Korea.
 * matplotlib
 * rich (optional)
 
-
-
-### Install 
-
 First, install Anaconda python distribution. Then all may have been installed, except for `astroplan`. Install it by:
 
 ```
 $ conda install -c astropy astroplan
 ```
-
-
-
 (OPTIONAL: Package `rich` is used for nothing but nicer output on terminal. You may install by `pip install rich`, but it is **not necessary**.)
 
+</details>
 
 
 To use this simple python script,
@@ -48,10 +47,8 @@ To use this simple python script,
 $ cd <where you want to save it>
 $ git clone https://github.com/ysBach/find_amateur_astro_target.git
 $ cd find_amateur_astro_target
-$ python find_targets.py -C  # slightly better
+$ python find_targets.py -o first_trial.html -t M31
 ```
-
-When you run the script for the **first time**, it will take some time, like **~ 5 minutes** (as it tries to query the RA/DEC information of the objects from online).
 
 You may play with it - see the Usage below.
 
@@ -65,7 +62,7 @@ You may play with it - see the Usage below.
 $ python find_targets.py
 ```
 
-It will use all ~200 targets, using the current time ± 2 hour at Seoul. Any object above minimum altitude 30˚ will be plotted.
+It will use all ~200 targets, using the **current time ± 2 hour at Seoul**. Any object above minimum altitude 30˚ will be plotted.
 
 
 
