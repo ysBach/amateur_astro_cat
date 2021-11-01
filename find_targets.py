@@ -42,9 +42,12 @@ PLANETS = {
     'Jupiter': "orange", 'Saturn': "olive", 'Uranus': "lightseagreen", 'Neptune': "blue"
 }
 
-LSDICT = {
-    'gal': "-", 'Neb': "--", "cl": "-."
+PLOTKW = {
+    'gal': dict(ls="-", alpha=0.7, lw=2),
+    'Neb': dict(ls="--", alpha=1, lw=2),
+    "cl": dict(ls="-.", alpha=1, lw=2),
 }
+PLOTKW_OTHERS = dict(ls=":", alpha=1, lw=2)
 
 INFOSTR = """
 Abbreviations for "Type" column
@@ -129,7 +132,7 @@ args = p.parse_args()
 
 
 def check_observable(min_alt, observer, targets, times, always):
-    consts = [ap.AltitudeConstraint(min_alt*u.deg), ap.AtNightConstraint(max_solar_altitude=0*u.deg)]
+    consts = [ap.AltitudeConstraint(min_alt*u.deg)]  # , ap.AtNightConstraint(max_solar_altitude=0*u.deg)
     mask_fun = ap.is_always_observable if always else ap.is_observable
     mask = mask_fun(constraints=consts, observer=observer, targets=targets.tolist(), times=times)
     # coo_up = []
@@ -163,7 +166,7 @@ def get_geoloc(use_current_location, verbose):
     return lon, lat, tz
 
 
-def get_time(YYYY, MM, DD, HH, mm, ss, in_utc):
+def get_time(YYYY, MM, DD, HH, mm, ss, in_utc, tz):
     ''' Parse the time infromation
     '''
     if YYYY is None:
@@ -180,6 +183,13 @@ def get_time(YYYY, MM, DD, HH, mm, ss, in_utc):
         else:
             _obstime = datetime.datetime(YYYY, MM, DD, HH, mm, ss).astimezone(tz)
     return _obstime
+
+
+def add2kw(kw, cat, coo, mask, cmap):
+    count = np.sum(mask)
+    kw["df"] = cat[mask]
+    kw["coo"] = coo[mask]
+    kw["colors"] = cmap(np.linspace(0, 1, count))
 
 
 def parseID(catid):
@@ -204,11 +214,12 @@ if __name__ == "__main__":
         print(args)
 
     TOP = Path(__file__).parent
-    FIGDIR = str(TOP/"figs")
+    OUTPUT = Path(args.output) if args.output else Path("output.html")
+    FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
 
     # == Get location and time information ================================================================= #
     lon, lat, tz = get_geoloc(args.currentlocation, args.verbose)
-    _obstime = get_time(args.YYYY, args.MM, args.DD, args.HH, args.mm, args.ss, args.UTC)
+    _obstime = get_time(args.YYYY, args.MM, args.DD, args.HH, args.mm, args.ss, args.UTC, tz)
 
     print(f"Date & Time : {_obstime} ({tz})\n lon , lat  : {lon.value:.2f}˚, {lat.value:.2f}˚")
 
@@ -284,13 +295,19 @@ if __name__ == "__main__":
     #     coo_up = [_coo for _coo in coords if np.any(observer.target_is_up(times, _coo, horizon=horizon))]
     #     return coo_up
 
-    # == Plot ============================================================================================== #
-    colors = np.vstack([plt.cm.tab10(np.linspace(0, 1, 10)),
-                        plt.cm.tab20(np.linspace(0, 1, 20))[1::2]])
+    # == Set plotting style and save HTML ================================================================== #
     observable_kw = dict(observer=obs, times=OBSTIMES, always=args.always_visible)
     upmask = check_observable(args.min_alt, targets=coo, **observable_kw)
     coo_up = coo[upmask]
     cat_up = cat[upmask]
+
+    fullmask = np.ones(len(cat_up))
+    for typ, kwdict in PLOTKW.items():
+        typmask = cat_up["Type"].str.startswith(typ)
+        add2kw(kwdict, cat_up, coo_up, typmask, plt.cm.viridis)
+        fullmask -= typmask
+    add2kw(PLOTKW_OTHERS, cat_up, coo_up, fullmask.astype(bool), plt.cm.viridis)
+    PLOTKW["others"] = PLOTKW_OTHERS
 
     cat_up["wiki"] = cat_up["ID"].apply(mk_wikilink)
     cat_up["lowres"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">')
@@ -298,38 +315,42 @@ if __name__ == "__main__":
     cat_up["DSS-zscale"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=250px>')
     if args.verbose:
         print(f"{len(cat_up)} objects are visible by the user's criteria.")
-    if args.output is not None:
-        cat_up.to_html(args.output, index=False, escape=False)
-        if args.verbose:
-            print(f"Catalog saved to {args.output}")
+    cat_up.to_html(OUTPUT, index=False, escape=False)
+    if args.verbose:
+        print(f"* Catalog saved to {OUTPUT}")
 
-    lss = np.array([":"]*len(cat_up), dtype="<U2")
-    for k, v in LSDICT.items():
-        lss[cat_up["Type"].str.startswith(k)] = v
-
+    # == Plot ============================================================================================== #
     fig, axs = plt.subplots(1, 1, figsize=(9, 9), sharex=False, sharey=False, gridspec_kw=None)
 
-    for i, (_coo, ls) in enumerate(zip(coo_up, lss)):
-        aplt.plot_altitude(
-            targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
-            style_kwargs=dict(linestyle=ls, color=colors[i%10], alpha=0.7, linewidth=2)
-        )
+    for typ, kw in PLOTKW.items():
+        for _coo, _color in zip(kw["coo"], kw["colors"]):
+            aplt.plot_altitude(
+                targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
+                style_kwargs=dict(linestyle=kw["ls"], color=_color, alpha=kw["alpha"], linewidth=kw["lw"])
+            )
+
+    # for i, (_coo, ls) in enumerate(zip(coo_up, lss)):
+    #     aplt.plot_altitude(
+    #         targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
+    #         style_kwargs=dict(linestyle=ls, color=colors[i], alpha=0.7, linewidth=2)
+    #     )
 
     moon_phase = obs.moon_phase(OBSTIME).to(u.deg).value
     # in radian, phase=pi is “new”, phase=0 is “full”.
     alt_moon = obs.moon_altaz(OBSTIMES).alt
-    axs.plot_date(OBSTIMES.plot_date, alt_moon, '-', color='k', linewidth=6, alpha=0.3,
+    axs.plot_date(OBSTIMES.plot_date, alt_moon, '-', color='k', linewidth=6, alpha=0.4,
                   label=f'Moon (θ_full={moon_phase:.0f}˚)')
 
     upmask_pl = check_observable(args.min_alt_pl, targets=coo_pl, **observable_kw)
     coo_pl_up = coo_pl[upmask_pl]
     if args.verbose:
         print(f"{len(coo_pl_up)} planets are visible under the user's criteria.")
-    for _coo in coo_pl_up:
-        aplt.plot_altitude(targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
-                           style_kwargs=dict(color=PLANETS[_coo.name], linewidth=6, alpha=0.3))
+    if len(coo_pl_up) > 0:
+        for _coo in coo_pl_up:
+            aplt.plot_altitude(targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
+                               style_kwargs=dict(color=PLANETS[_coo.name], linewidth=6, alpha=0.3))
 
-    fake_coo = coo_pl_up[0].copy()
+    fake_coo = coo_pl[0].copy()
     fake_coo.name = None
     aplt.plot_altitude(targets=fake_coo, observer=obs, time=OBSTIMES, ax=axs,
                        min_altitude=args.min_alt, airmass_yaxis=True,
