@@ -210,7 +210,6 @@ def mk_wikilink(catid):
 
 if __name__ == "__main__":
     if args.verbose:
-        print(INFOSTR)
         print(args)
 
     TOP = Path(__file__).parent
@@ -268,7 +267,8 @@ if __name__ == "__main__":
         print(f"{len(cat)} objects are selected by the user.")
 
     cat.drop(columns=["Distance (kly)", "Constellation"], inplace=True)
-    cat.sort_values(by="Type", inplace=True)
+    cat.sort_values(by="DEC", ascending=False, ignore_index=True, inplace=True)
+    # plotting order will anyway be based on Type.
     coo = np.array([ap.FixedTarget(SkyCoord(ra=_a*u.deg, dec=_d*u.deg), name=f"{_id} ({_t})")
                     for _a, _d, _id, _t in zip(cat["RA"], cat["DEC"], cat["ID"], cat["Type"])])
 
@@ -295,7 +295,7 @@ if __name__ == "__main__":
     #     coo_up = [_coo for _coo in coords if np.any(observer.target_is_up(times, _coo, horizon=horizon))]
     #     return coo_up
 
-    # == Set plotting style and save HTML ================================================================== #
+    # == Set plotting style ================================================================================ #
     observable_kw = dict(observer=obs, times=OBSTIMES, always=args.always_visible)
     upmask = check_observable(args.min_alt, targets=coo, **observable_kw)
     coo_up = coo[upmask]
@@ -311,13 +311,10 @@ if __name__ == "__main__":
 
     cat_up["wiki"] = cat_up["ID"].apply(mk_wikilink)
     cat_up["lowres"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">')
-    cat_up["DSS"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=250px>')
-    cat_up["DSS-zscale"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=250px>')
+    cat_up["DSS"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=230px>')
+    cat_up["DSS-zscale"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=230px>')
     if args.verbose:
         print(f"{len(cat_up)} objects are visible by the user's criteria.")
-    cat_up.to_html(OUTPUT, index=False, escape=False)
-    if args.verbose:
-        print(f"* Catalog saved to {OUTPUT}")
 
     # == Plot ============================================================================================== #
     fig, axs = plt.subplots(1, 1, figsize=(9, 9), sharex=False, sharey=False, gridspec_kw=None)
@@ -328,6 +325,13 @@ if __name__ == "__main__":
                 targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
                 style_kwargs=dict(linestyle=kw["ls"], color=_color, alpha=kw["alpha"], linewidth=kw["lw"])
             )
+        if args.verbose:
+            print(f"{typ:>6s}: {len(kw['coo']):02d} objects")
+
+    cat_up.sort_values(by=["Type", "DEC"], ascending=False, ignore_index=True, inplace=True)
+    cat_up.to_html(OUTPUT, index=False, escape=False)
+    if args.verbose:
+        print(f"* Catalog saved to {OUTPUT}")
 
     # for i, (_coo, ls) in enumerate(zip(coo_up, lss)):
     #     aplt.plot_altitude(
@@ -345,6 +349,8 @@ if __name__ == "__main__":
     coo_pl_up = coo_pl[upmask_pl]
     if args.verbose:
         print(f"{len(coo_pl_up)} planets are visible under the user's criteria.")
+        print(INFOSTR)
+
     if len(coo_pl_up) > 0:
         for _coo in coo_pl_up:
             aplt.plot_altitude(targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
@@ -353,7 +359,7 @@ if __name__ == "__main__":
     fake_coo = coo_pl[0].copy()
     fake_coo.name = None
     aplt.plot_altitude(targets=fake_coo, observer=obs, time=OBSTIMES, ax=axs,
-                       min_altitude=args.min_alt, airmass_yaxis=True,
+                       min_altitude=args.min_alt, airmass_yaxis=True, brightness_shading=True,
                        style_kwargs=dict(linestyle=''))
 
     axs.axhline(30, color='k', linestyle='-')

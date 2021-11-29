@@ -6,7 +6,7 @@ M4,NGC 6121,,cl-G,7.2,Scorpius,5.9
 M5,NGC 5904,,cl-G,24.5,Serpens,6.7
 M6,NGC 6405,Butterfly Cluster,cl-O,1.6,Scorpius,4.2
 M7,NGC 6475,Ptolemy Cluster,cl-O,0.65-1.31,Scorpius,3.3
-M8,NGC 6523,Lagoon Nebula,Neb & cl,4.1,Sagittarius,6.0
+M8,NGC 6523,Lagoon Nebula,Neb & cl,4.1,Sagittarius,6
 M9,NGC 6333,,cl-G,25.8,Ophiuchus,8.4
 M10,NGC 6254,,cl-G,14.3,Ophiuchus,6.4
 M11,NGC 6705,Wild Duck Cluster,cl-O,6.2,Scutum,6.3
@@ -14,8 +14,8 @@ M12,NGC 6218,,cl-G,15.7,Ophiuchus,7.7
 M13,NGC 6205,Great GC in Hercules,cl-G,22.2,Hercules,5.8
 M14,NGC 6402,,cl-G,30.3,Ophiuchus,8.3
 M15,NGC 7078,,cl-G,33,Pegasus,6.2
-M16,NGC 6611,Eagle Nebula,Neb-HII & cl,7,Serpens,6.0
-M17,NGC 6618,Omega/Swan/Horseshoe/Lobster Nebula,Neb-HII & cl,5-6,Sagittarius,6.0
+M16,NGC 6611,Eagle Nebula,Neb-HII & cl,7,Serpens,6
+M17,NGC 6618,Omega/Swan/Horseshoe/Lobster Nebula,Neb-HII & cl,06-May,Sagittarius,6
 M18,NGC 6613,,cl-O,4.9,Sagittarius,7.5
 M19,NGC 6273,,cl-G,28.7,Ophiuchus,7.5
 M20,NGC 6514,Trifid Nebula,Neb-HII & cl,5.2,Sagittarius,6.3
@@ -23,15 +23,15 @@ M21,NGC 6531,,cl-O,4.25,Sagittarius,6.5
 M22,NGC 6656,Sagittarius Cluster,cl-G,9.6-11.6,Sagittarius,5.1
 M23,NGC 6494,,cl-O,2.15,Sagittarius,6.9
 M24,IC 4715,Small Sagittarius Star Cloud,MW star cloud,~10,Sagittarius,2.5
-M25,IC 4725,,cl-O,2.0,Sagittarius,4.6
-M26,NGC 6694,,cl-O,5.0,Scutum,8.0
+M25,IC 4725,,cl-O,2,Sagittarius,4.6
+M26,NGC 6694,,cl-O,5,Scutum,8
 M27,NGC 6853,Dumbbell Nebula,Neb-P,1.148-1.52,Vulpecula,7.5
 M28,NGC 6626,,cl-G,17.9,Sagittarius,7.7
 M29,NGC 6913,Cooling Tower,cl-O,7.2,Cygnus,7.1
 M30,NGC 7099,,cl-G,27.8-31,Capricornus,7.7
 M31,NGC 224,Andromeda Galaxy,gal-S,2430-2650,Andromeda,3.4
 M32,NGC 221,Small Andromeda Galaxy,gal-dE,2410-2570,Andromeda,8.1
-M33,NGC 598,Triangulum/Pinwheel Galaxy,gal-S,2380-3070,Triangulum,5.7
+M33,NGC 598,Triangulum Galaxy,gal-S,2380-3070,Triangulum,5.7
 M34,NGC 1039,,cl-O,1.5,Perseus,5.5
 M35,NGC 2168,,cl-O,2.8,Gemini,5.3
 M36,NGC 1960,,cl-O,4.1,Auriga,6.3
@@ -40,8 +40,8 @@ M38,NGC 1912,Starfish Cluster,cl-O,4.2,Auriga,7.4
 M39,NGC 7092,,cl-O,0.8244,Cygnus,5.5
 M40,,Winnecke-4,Star System,0.51,Ursa Major,9.7
 M41,NGC 2287,,cl-O,2.3,Canis Major,4.5
-M42,NGC 1976,Orion Nebula,Neb-HII,1.324-1.364,Orion,4.0
-M43,NGC 1982,De Mairan's Nebula,Neb-HII,1.6,Orion,9.0
+M42,NGC 1976,Orion Nebula,Neb-HII,1.324-1.364,Orion,4
+M43,NGC 1982,De Mairan's Nebula,Neb-HII,1.6,Orion,9
 M44,NGC 2632,Beehive Cluster or Praesepe,cl-O,0.577,Cancer,3.7
 M45,,Pleiades,cl-O,0.39-0.46,Taurus,1.6
 M46,NGC 2437,,cl-O,5.4,Puppis,6.1
@@ -50,7 +50,7 @@ M48,NGC 2548,,cl-O,1.5,Hydra,5.5
 M49,NGC 4472,,gal-E,53600-58200,Virgo,9.4
 M50,NGC 2323,,cl-O,3.2,Monoceros,5.9
 M51,NGC 5194 & NGC 5195,Whirlpool Galaxy,gal-S,19000-27000,Canes Venatici,8.4
-M52,NGC 7654,,cl-O,5.0,Cassiopeia,5.0
+M52,NGC 7654,,cl-O,5,Cassiopeia,5
 M53,NGC 5024,,cl-G,58,Coma Berenices,8.3
 M54,NGC 6715,,cl-G,87.4,Sagittarius,8.4
 M55,NGC 6809,,cl-G,17.6,Sagittarius,7.4
@@ -69,10 +69,10 @@ M67,NGC 2682,,cl-O,2.61-2.93,Cancer,6.1
 M68,NGC 4590,,cl-G,33.6,Hydra,9.7
 M69,NGC 6637,,cl-G,29.7,Sagittarius,8.3
 M70,NGC 6681,,cl-G,29.4,Sagittarius,9.1
-M71,NGC 6838,,cl-G,13.0,Sagitta,6.1
+M71,NGC 6838,,cl-G,13,Sagitta,6.1
 M72,NGC 6981,,cl-G,53.40-55.74,Aquarius,9.4
-M73,NGC 6994,,Asterism,~2.5,Aquarius,9.0
-M74,NGC 628,Phantom Galaxy,gal-S,24000-36000,Pisces,10.0
+M73,NGC 6994,,Asterism,~2.5,Aquarius,9
+M74,NGC 628,Phantom Galaxy,gal-S,24000-36000,Pisces,10
 M75,NGC 6864,,cl-G,67.5,Sagittarius,9.2
 M76,NGC 650 & NGC 651,Little Dumbbell Nebula,Neb-P,2.5,Perseus,10.1
 M77,NGC 1068,Cetus A,gal-S,47000,Cetus,9.6
@@ -83,37 +83,37 @@ M81,NGC 3031,Bode's Galaxy,gal-S,11400-12200,Ursa Major,6.9
 M82,NGC 3034,Cigar Galaxy,gal-Irr,10700-12300,Ursa Major,8.4
 M83,NGC 5236,Southern Pinwheel Galaxy,gal-SB,14700,Hydra,7.5
 M84,NGC 4374,,gal-S0,57000-63000,Virgo,10.1
-M85,NGC 4382,,gal-S0,56000-64000,Coma Berenices,10.0
+M85,NGC 4382,,gal-S0,56000-64000,Coma Berenices,10
 M86,NGC 4406,,gal-S0,49000-55000,Virgo,9.8
 M87,NGC 4486,Virgo A,gal-E,51870-55130,Virgo,9.6
 M88,NGC 4501,,gal-S,39000-56000,Coma Berenices,10.4
 M89,NGC 4552,,gal-E,47000-53000,Virgo,10.7
 M90,NGC 4569,,gal-S,55900-61500,Virgo,10.3
-M91,NGC 4548,,gal-SB,47000-79000,Coma Berenices,11.0
+M91,NGC 4548,,gal-SB,47000-79000,Coma Berenices,11
 M92,NGC 6341,,cl-G,26.7,Hercules,6.3
-M93,NGC 2447,,cl-O,3.6,Puppis,6.0
-M94,NGC 4736,Croc's Eye / Cat's Eye,gal-S,14700-17300,Canes Venatici,9.0
+M93,NGC 2447,,cl-O,3.6,Puppis,6
+M94,NGC 4736,Croc's Eye / Cat's Eye,gal-S,14700-17300,Canes Venatici,9
 M95,NGC 3351,,gal-SB,31200-34000,Leo,11.4
 M96,NGC 3368,,gal-S,28000-34000,Leo,10.1
 M97,NGC 3587,Owl Nebula,Neb-P,2.03,Ursa Major,9.9
-M98,NGC 4192,,gal-S,44400,Coma Berenices,11.0
+M98,NGC 4192,,gal-S,44400,Coma Berenices,11
 M99,NGC 4254,,gal-S,44700-55700,Coma Berenices,10.4
 M100,NGC 4321,,gal-S,55000,Coma Berenices,10.1
 M101,NGC 5457,Pinwheel Galaxy,gal-S,19100-22400,Ursa Major,7.9
 M102,NGC 5866,Spindle Galaxy,gal-S0,50000,Draco,10.7
 M103,NGC 581,,cl-O,10,Cassiopeia,7.4
-M104,NGC 4594,Sombrero Galaxy,gal-S,28700-30900,Virgo,9.0
+M104,NGC 4594,Sombrero Galaxy,gal-S,28700-30900,Virgo,9
 M105,NGC 3379,,gal-E,30400-33600,Leo,10.2
 M106,NGC 4258,,gal-S,22200-25200,Canes Venatici,9.1
 M107,NGC 6171,,cl-G,20.9,Ophiuchus,8.9
 M108,NGC 3556,,gal-SB,46000,Ursa Major,10.7
 M109,NGC 3992,,gal-SB,59500-107500,Ursa Major,10.6
-M110,NGC 205,,gal-dE,2600-2780,Andromeda,9.0
+M110,NGC 205,,gal-dE,2600-2780,Andromeda,9
 C1,NGC 188,,cl-O,4.8,Cepheus,8.1
 C2,NGC 40,Bow-Tie Nebula,Neb-P,3.5,Cepheus,11
 C3,NGC 4236,,gal-SB,7000,Draco,9.7
 C4,NGC 7023,Iris Nebula,cl-O & Neb,1.4,Cepheus,7
-C5,IC 342,"Hidden Galaxy ",gal-S,10000,Camelopardalis,9
+C5,IC 342,Hidden Galaxy ,gal-S,10000,Camelopardalis,9
 C6,NGC 6543,Cat's Eye Nebula,Neb-P,3,Draco,9
 C7,NGC 2403,,gal-S,14000,Camelopardalis,8.4
 C8,NGC 559,,cl-O,3.7,Cassiopeia,9.5
@@ -154,17 +154,17 @@ C42,NGC 7006,,cl-G,135,Delphinus,10.6
 C43,NGC 7814,,gal-S,49000,Pegasus,10.5
 C44,NGC 7479,,gal-SB,106000,Pegasus,11
 C45,NGC 5248,,gal-S,74000,Boötes,10.2
-C46,NGC 2261,Hubble's Variable Nebula,Neb,2.5,Monoceros
+C46,NGC 2261,Hubble's Variable Nebula,Neb,2.5,Monoceros,
 C47,NGC 6934,,cl-G,57,Delphinus,8.9
 C48,NGC 2775,,gal-S,55000,Cancer,10.3
-C49,NGC 2237,Rosette Nebula,Neb,4.9,Monoceros,9.0
-C50,NGC 2244,"Satellite Cluster",cl-O,4.9,Monoceros,4.8
+C49,NGC 2237,Rosette Nebula,Neb,4.9,Monoceros,9
+C50,NGC 2244,Satellite Cluster,cl-O,4.9,Monoceros,4.8
 C51,IC 1613,,gal-Irr,2300,Cetus,9.3
 C52,NGC 4697,,gal-E,76000,Virgo,9.3
 C53,NGC 3115,Spindle Galaxy,gal-S0,22000,Sextans,9.2
 C54,NGC 2506,,cl-O,10,Monoceros,7.6
 C55,NGC 7009,Saturn Nebula,Neb-P,1.4,Aquarius,8
-C56,NGC 246,"Skull Nebula",Neb-P,1.6,Cetus,8
+C56,NGC 246,Skull Nebula,Neb-P,1.6,Cetus,8
 C57,NGC 6822,Barnard's Galaxy,gal-IrrB,2300,Sagittarius,9
 C58,NGC 2360,Caroline's Cluster,cl-O,3.7,Canis Major,7.2
 C59,NGC 3242,Ghost of Jupiter,Neb-P,1.4,Hydra,9
@@ -201,7 +201,7 @@ C89,NGC 6087,S Normae Cluster,cl-O,3.3,Norma,5.4
 C90,NGC 2867,,Neb-P,5.5,Carina,10
 C91,NGC 3532,Wishing Well Cluster,cl-O,1.6,Carina,3
 C92,NGC 3372,Eta Carinae Nebula,Neb,7.5,Carina,3
-C93,NGC 6752,"Great Peacock Globular ",cl-G,13,Pavo,5.4
+C93,NGC 6752,Great Peacock Globular ,cl-G,13,Pavo,5.4
 C94,NGC 4755,Jewel Box,cl-O,4.9,Crux,4.2
 C95,NGC 6025,,cl-O,2.5,Triangulum Australe,5.1
 C96,NGC 2516,Southern Beehive Cluster,cl-O,1.3,Carina,3.8
