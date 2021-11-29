@@ -32,21 +32,22 @@ You need:
 * numpy
 * pandas
 * astropy
+* astroquery
 * **astroplan**
 * matplotlib
 * rich (optional)
 
-First, install Anaconda python distribution. Then all may have been installed, except for `astroplan`. Install it by:
-
-```
-$ conda install -c astropy astroplan
-```
-(OPTIONAL: Package `rich` is used for nothing but nicer output on terminal. You may install by `pip install rich`, but it is **not necessary**.)
-
 </details>
 
+First, **install** Anaconda/miniconda (You may also make a new environment if you wish). Then run this:
 
-To use this simple python script,
+```
+$ conda install -c conda-forge rich numpy pandas matplotlib pytz astropy astroquery astroplan --yes
+```
+
+
+
+The very first, **test run**:
 
 ```
 $ cd <where you want to save it>
@@ -54,8 +55,6 @@ $ git clone https://github.com/ysBach/find_amateur_astro_target.git
 $ cd find_amateur_astro_target
 $ python find_targets.py -o first_trial.html -t M31
 ```
-
-You may play with it - see the Usage below.
 
 
 
