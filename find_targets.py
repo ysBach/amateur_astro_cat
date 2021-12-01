@@ -213,12 +213,8 @@ if __name__ == "__main__":
         print(args)
 
     TOP = Path(__file__).parent
-    try:
-        OUTPUT = Path(args.output) if args.output else Path.cwd()/"output.html"
-        FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
-    except ValueError:
-        OUTPUT = Path(args.output) if args.output else Path("output.html")
-        FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
+    OUTPUT = Path(args.output).absolute() if args.output else Path("output.html").absolute()
+    FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
 
     # == Get location and time information ================================================================= #
     lon, lat, tz = get_geoloc(args.currentlocation, args.verbose)
