@@ -171,6 +171,12 @@ def get_time(YYYY, MM, DD, HH, mm, ss, in_utc, tz):
     '''
     if YYYY is None:
         _obstime = datetime.datetime.utcnow()
+        _localnow = datetime.datetime.now()
+        args.YYYY = _localnow.year
+        args.MM = _localnow.month
+        args.DD = _localnow.day
+        args.HH = _localnow.hour
+        args.mm = _localnow.minute
     else:
         YYYY = int(YYYY)
         MM = int(MM)
@@ -205,7 +211,19 @@ def parseID(catid):
 def mk_wikilink(catid):
     catname = parseID(catid)
     url = f"https://en.wikipedia.org/wiki/{catname}_{catid[1:]}"
-    return f'<a href="{url}" title="Link">link</a>'
+    return f'<p style="font-size:large"><a href="{url}" title="Link">{catid:s}</a></p>'
+
+
+def alt_color(alt):
+    altval = float(alt)
+    if altval < 0:
+        color = "red"
+    elif altval < args.min_alt:
+        color = "orange"
+    else:
+        color = "limegreen"
+
+    return f'<p style="color:{color}">{alt:.1f}˚</p>'
 
 
 if __name__ == "__main__":
@@ -224,7 +242,7 @@ if __name__ == "__main__":
 
     OBSTIME = Time(_obstime)  # in UTC
     dt = args.duration*u.hour
-    OBSTIME_RANGE = Time([OBSTIME - dt, OBSTIME + dt])
+    OBSTIME_RANGE = Time([OBSTIME - dt, OBSTIME, OBSTIME + dt])
     OBSTIMES = OBSTIME + np.linspace(-dt, dt, max(6, int(args.duration*12)))
     # around once per 5 minutes
 
@@ -266,8 +284,8 @@ if __name__ == "__main__":
     if args.verbose:
         print(f"{len(cat)} objects are selected by the user.")
 
-    cat.drop(columns=["Distance (kly)", "Constellation"], inplace=True)
     cat.sort_values(by="DEC", ascending=False, ignore_index=True, inplace=True)
+
     # plotting order will anyway be based on Type.
     coo = np.array([ap.FixedTarget(SkyCoord(ra=_a*u.deg, dec=_d*u.deg), name=f"{_id} ({_t})")
                     for _a, _d, _id, _t in zip(cat["RA"], cat["DEC"], cat["ID"], cat["Type"])])
@@ -309,7 +327,6 @@ if __name__ == "__main__":
     add2kw(PLOTKW_OTHERS, cat_up, coo_up, fullmask.astype(bool), plt.cm.viridis)
     PLOTKW["others"] = PLOTKW_OTHERS
 
-    cat_up["wiki"] = cat_up["ID"].apply(mk_wikilink)
     cat_up["lowres"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">')
     cat_up["DSS"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=230px>')
     cat_up["DSS-zscale"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=230px>')
@@ -318,6 +335,9 @@ if __name__ == "__main__":
 
     # == Plot ============================================================================================== #
     fig, axs = plt.subplots(1, 1, figsize=(9, 9), sharex=False, sharey=False, gridspec_kw=None)
+    altitudes_beg = []
+    altitudes_mid = []
+    altitudes_end = []
 
     for typ, kw in PLOTKW.items():
         for _coo, _color in zip(kw["coo"], kw["colors"]):
@@ -325,13 +345,39 @@ if __name__ == "__main__":
                 targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
                 style_kwargs=dict(linestyle=kw["ls"], color=_color, alpha=kw["alpha"], linewidth=kw["lw"])
             )
+            alts = obs.altaz(OBSTIME_RANGE, target=_coo).alt
+            altitudes_beg.append(alts[0].value)
+            altitudes_mid.append(alts[1].value)
+            altitudes_end.append(alts[2].value)
+
         if args.verbose:
             print(f"{typ:>6s}: {len(kw['coo']):02d} objects")
 
     cat_up.sort_values(by=["Type", "DEC"], ascending=False, ignore_index=True, inplace=True)
-    cat_up.to_html(OUTPUT, index=False, escape=False)
+    cat_up.insert(loc=3, column="RADEC[˚]", value=cat_up["RA"].astype(str) + "<br>" + cat_up["DEC"].astype(str))
+    cat_up["ID"] = cat_up["ID"].apply(mk_wikilink)
+    cat_up["ID"] = "<b>" + cat_up["ID"] + "</b><br><br>" + cat_up["Other ID"]
+
+    colnames = [
+        f"- {dt.value:.0f} hr<br>altitude",
+        f"{str(args.YYYY)[-2:]}-{args.MM:02d}-{args.DD:02d}<br>{args.HH:02d}:{args.mm:02d}<br>altitude",
+        f"+ {dt.value:.0f} hr<br>altitude"
+    ]
+    for i, (alts, col) in enumerate(zip([altitudes_beg, altitudes_mid, altitudes_end], colnames)):
+        cat_up.insert(loc=i+3, column=col, value=alts)
+        cat_up[col] = cat_up[col].apply(alt_color)
+
+    cat_up.drop(columns=["Other ID", "Distance (kly)", "Constellation", "RA", "DEC"], inplace=True)
+
+    # == Convert to HTML ================================================================= #
+    html_str = cat_up.to_html(None, index=False, escape=False)
+    html_str = "<pre>" + html_str + "</pre>"
+    with open(OUTPUT, "w+") as output:
+        output.write(html_str)
+
     if args.verbose:
         print(f"* Catalog saved to {OUTPUT}")
+    # ------------------------------------------------------------------------------------ #
 
     # for i, (_coo, ls) in enumerate(zip(coo_up, lss)):
     #     aplt.plot_altitude(
