@@ -38,9 +38,16 @@ rcParams.update({
 })
 
 PLANETS = {
-    'Mercury': "gray", 'Venus': "brown", 'Mars': "red",
-    'Jupiter': "orange", 'Saturn': "olive", 'Uranus': "lightseagreen", 'Neptune': "blue"
+    'Mercury': "gray",
+    'Venus': "brown",
+    'Mars': "red",
+    'Jupiter': "orange",
+    'Saturn': "olive",
+    'Uranus': "lightseagreen",
+    'Neptune': "blue"
 }
+
+COLS2DROP = ["Other ID", "Distance (kly)", "Constellation", "RA", "DEC"]
 
 PLOTKW = {
     'gal': dict(ls="-", alpha=0.7, lw=2),
@@ -78,17 +85,17 @@ Original of Caldwell data from https://en.wikipedia.org/wiki/Caldwell_catalogue
 p = argparse.ArgumentParser(description='')
 
 # TODO: let user choose which to use first y-axis (airmass, altitude)
-p.add_argument("YYYY", nargs='?',
+p.add_argument("YYYY", nargs='?', type=int,
                help="Year; If not given, current time is used")
-p.add_argument("MM", nargs='?', default=1,
+p.add_argument("MM", nargs='?', default=1, type=int,
                help="Month   (1 <= month <= 12)")
-p.add_argument("DD", nargs='?', default=1,
+p.add_argument("DD", nargs='?', default=1, type=int,
                help="Date    (1 <= day <= number of days in the given month and year)")
-p.add_argument("HH", nargs='?', default=0,
+p.add_argument("HH", nargs='?', default=0, type=int,
                help="Hour    (0 <= hour < 24)")
-p.add_argument("mm", nargs='?', default=0,
+p.add_argument("mm", nargs='?', default=0, type=int,
                help="Minutes (0 <= minute < 60)")
-p.add_argument("ss", nargs='?', default=0,
+p.add_argument("ss", nargs='?', default=0, type=int,
                help="Seconds (0 <= second < 60)")
 
 p.add_argument("-U", "--UTC", action="store_true",
@@ -100,21 +107,22 @@ p.add_argument("-C", "--Caldwell", action="store_false",
 p.add_argument("-X", "--airmass", action="store_true",
                help="Whether to use the primary y-axis as airmass (`X`)")
 p.add_argument("-A", "--always-visible", action="store_true",
-               help="Whether to discard objects that are not *always* visible during the timespan")
+               help="Discard objects that are not *always* visible during the timespan?")
 p.add_argument("-N", "--nickname", action="store_true",
                help="Use only those that have common nick name.")
 p.add_argument("-E", "--type-exclude", action="store_true",
                help="Whether the -T (--types) is for exclusion")
 
 p.add_argument("-c", "--currentlocation", action="store_true",
-               help="Use current location and timezone automatically (using http://ip-api.com/json/)")
+               help=("Use current location and timezone automatically "
+                     + "(using http://ip-api.com/json/)"))
 p.add_argument("-v", "--verbose", action="store_true",
                help="Print miscellaneous information")
 
 p.add_argument("-d", "--duration", default=2., type=float,
                help="Duration of the observing run (+- this number) [hour]")
 p.add_argument("-l", "--location", nargs=2, default=[127, 37.5],
-               help="(longitude, latitude) in degrees; Used in astropy.coordinates.EarthLocation")
+               help="(longitude, latitude) [˚]; Used in astropy.coordinates.EarthLocation")
 p.add_argument("-z", "--timezone", default="Asia/Seoul", type=str,
                help="Time zone")
 
@@ -132,9 +140,15 @@ args = p.parse_args()
 
 
 def check_observable(min_alt, observer, targets, times, always):
-    consts = [ap.AltitudeConstraint(min_alt*u.deg)]  # , ap.AtNightConstraint(max_solar_altitude=0*u.deg)
+    consts = [ap.AltitudeConstraint(min_alt*u.deg)]
+    # , ap.AtNightConstraint(max_solar_altitude=0*u.deg)
     mask_fun = ap.is_always_observable if always else ap.is_observable
-    mask = mask_fun(constraints=consts, observer=observer, targets=targets.tolist(), times=times)
+    mask = mask_fun(
+        constraints=consts,
+        observer=observer,
+        targets=targets.tolist(),
+        times=times
+    )
     # coo_up = []
     # for _m, _t in zip(mask, targets):
     #     if _m:
@@ -150,10 +164,10 @@ def get_geoloc(use_current_location, verbose):
         from requests import get
         ip = get('https://api.ipify.org').content.decode('utf8')
         response = get("http://ip-api.com/json/" + ip).json()
-        # {'status': 'success', 'country': 'South Korea', 'countryCode': 'KR', 'region': '11',
-        # 'regionName': 'Seoul', 'city': 'Gwanak-gu', 'zip': '08841', 'lat': 37.4625, 'lon': 126.9438,
-        # 'timezone': 'Asia/Seoul', 'isp': 'SNU', 'org': '', 'as': 'AS9488 Seoul National University',
-        # 'query': '147.46.135.73'}
+        # {'status': 'success', 'country': 'South Korea', 'countryCode': 'KR',
+        # 'region': '11', 'regionName': 'Seoul', 'city': 'Gwanak-gu', 'zip': '08841',
+        # 'lat': 37.4625, 'lon': 126.9438, 'timezone': 'Asia/Seoul', 'isp': 'SNU',
+        # 'org': '', 'as': 'AS9488 Seoul National University', 'query': '147.46.135.73'}
         lon = float(response['lon'])*u.deg
         lat = float(response['lat'])*u.deg
         tz = pytz.timezone(response['timezone'])
@@ -234,11 +248,14 @@ if __name__ == "__main__":
     OUTPUT = Path(args.output).absolute() if args.output else Path("output.html").absolute()
     FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
 
-    # == Get location and time information ================================================================= #
+    # == Get location and time information =============================================== #
     lon, lat, tz = get_geoloc(args.currentlocation, args.verbose)
-    _obstime = get_time(args.YYYY, args.MM, args.DD, args.HH, args.mm, args.ss, args.UTC, tz)
+    _obstime = get_time(args.YYYY, args.MM, args.DD,
+                        args.HH, args.mm, args.ss,
+                        args.UTC, tz)
 
-    print(f"Date & Time : {_obstime} ({tz})\n lon , lat  : {lon.value:.2f}˚, {lat.value:.2f}˚")
+    print(f"Date & Time : {_obstime} ({tz})")
+    print(f"lon , lat  : {lon.value:.2f}˚, {lat.value:.2f}˚")
 
     OBSTIME = Time(_obstime)  # in UTC
     dt = args.duration*u.hour
@@ -246,12 +263,13 @@ if __name__ == "__main__":
     OBSTIMES = OBSTIME + np.linspace(-dt, dt, max(6, int(args.duration*12)))
     # around once per 5 minutes
 
-    # NOTE: Default elevation of the observatory is set to 500m. Only small offset will be added,
-    #   and that is insignificant for the purpose (maybe about the size of line width...).
+    # NOTE: Default elevation of the observatory is set to 500m. Only small
+    #   offset will be added, and that is insignificant for the purpose (maybe
+    #   about the size of line width...).
     loc = EarthLocation.from_geodetic(lon, lat, 500*u.m)
     obs = ap.Observer(location=loc, timezone=tz)
 
-    # == Prepare catalog =================================================================================== #
+    # == Prepare catalog ================================================================= #
     cat = pd.read_csv(TOP/"amastro_catalog_radec.csv", delimiter=',', comment="#")
     if args.targets is not None:
         cat = cat[cat["ID"].isin(args.targets)]
@@ -287,10 +305,12 @@ if __name__ == "__main__":
     cat.sort_values(by="DEC", ascending=False, ignore_index=True, inplace=True)
 
     # plotting order will anyway be based on Type.
-    coo = np.array([ap.FixedTarget(SkyCoord(ra=_a*u.deg, dec=_d*u.deg), name=f"{_id} ({_t})")
-                    for _a, _d, _id, _t in zip(cat["RA"], cat["DEC"], cat["ID"], cat["Type"])])
+    coo = np.array(
+        [ap.FixedTarget(SkyCoord(ra=_a*u.deg, dec=_d*u.deg), name=f"{_id} ({_t})")
+         for _a, _d, _id, _t in zip(cat["RA"], cat["DEC"], cat["ID"], cat["Type"])]
+    )
 
-    # == Find coordinates of planets ======================================================================= #
+    # == Find coordinates of planets ===================================================== #
     coo_pl = []
     for planet in PLANETS.keys():
         _coo = get_body(planet, time=OBSTIME, location=loc)
@@ -310,10 +330,11 @@ if __name__ == "__main__":
     # def find_coo_up(coords, generous=False):
     #     times = OBSTIMES if generous else OBSTIME
     #     horizon = 25*u.deg if generous else 30*u.deg
-    #     coo_up = [_coo for _coo in coords if np.any(observer.target_is_up(times, _coo, horizon=horizon))]
+    #     coo_up = [_coo for _coo in coords
+    #               if np.any(observer.target_is_up(times, _coo, horizon=horizon))]
     #     return coo_up
 
-    # == Set plotting style ================================================================================ #
+    # == Set plotting style ============================================================== #
     observable_kw = dict(observer=obs, times=OBSTIMES, always=args.always_visible)
     upmask = check_observable(args.min_alt, targets=coo, **observable_kw)
     coo_up = coo[upmask]
@@ -327,23 +348,38 @@ if __name__ == "__main__":
     add2kw(PLOTKW_OTHERS, cat_up, coo_up, fullmask.astype(bool), plt.cm.viridis)
     PLOTKW["others"] = PLOTKW_OTHERS
 
-    cat_up["lowres"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">')
-    cat_up["DSS"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=230px>')
-    cat_up["DSS-zscale"] = cat_up["ID"].apply(lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=230px>')
+    cat_up["lowres"] = cat_up["ID"].apply(
+        lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">'
+    )
+    cat_up["DSS"] = cat_up["ID"].apply(
+        lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=230px>'
+    )
+    cat_up["DSS-zscale"] = cat_up["ID"].apply(
+        lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=230px>'
+    )
     if args.verbose:
         print(f"{len(cat_up)} objects are visible by the user's criteria.")
 
-    # == Plot ============================================================================================== #
-    fig, axs = plt.subplots(1, 1, figsize=(9, 9), sharex=False, sharey=False, gridspec_kw=None)
-    altitudes_beg = []
-    altitudes_mid = []
-    altitudes_end = []
+    # == Plot ============================================================================ #
+    fig, axs = plt.subplots(1, 1, figsize=(9, 9))
+    alts_beg = []
+    alts_mid = []
+    alts_end = []
 
     for typ, kw in PLOTKW.items():
         for _coo, _color in zip(kw["coo"], kw["colors"]):
             aplt.plot_altitude(
-                targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
-                style_kwargs=dict(linestyle=kw["ls"], color=_color, alpha=kw["alpha"], linewidth=kw["lw"])
+                ax=axs,
+                targets=_coo,
+                observer=obs,
+                time=OBSTIMES,
+                min_altitude=args.min_alt,
+                style_kwargs=dict(
+                    linestyle=kw["ls"],
+                    color=_color,
+                    alpha=kw["alpha"],
+                    linewidth=kw["lw"]
+                )
             )
             alts = obs.altaz(OBSTIME_RANGE, target=_coo).alt
             altitudes_beg.append(alts[0].value)
@@ -353,21 +389,23 @@ if __name__ == "__main__":
         if args.verbose:
             print(f"{typ:>6s}: {len(kw['coo']):02d} objects")
 
+    _radec = cat_up["RA"].astype(str) + "<br>" + cat_up["DEC"].astype(str)
     cat_up.sort_values(by=["Type", "DEC"], ascending=False, ignore_index=True, inplace=True)
-    cat_up.insert(loc=3, column="RADEC[˚]", value=cat_up["RA"].astype(str) + "<br>" + cat_up["DEC"].astype(str))
-    cat_up["ID"] = cat_up["ID"].apply(mk_wikilink)
+    cat_up.insert(loc=3, column="RADEC[˚]", value=_radec)
+    cat_up["ID"] = cat_up["ID"].apply(mk_wikilink)  # Add wiki links.
     cat_up["ID"] = "<b>" + cat_up["ID"] + "</b><br><br>" + cat_up["Other ID"]
 
     colnames = [
         f"- {dt.value:.0f} hr<br>altitude",
-        f"{str(args.YYYY)[-2:]}-{args.MM:02d}-{args.DD:02d}<br>{args.HH:02d}:{args.mm:02d}<br>altitude",
+        (f"{str(args.YYYY)[-2:]}-{args.MM:02d}-{args.DD:02d}<br>"
+         + f"{args.HH:02d}:{args.mm:02d}<br>altitude"),
         f"+ {dt.value:.0f} hr<br>altitude"
     ]
-    for i, (alts, col) in enumerate(zip([altitudes_beg, altitudes_mid, altitudes_end], colnames)):
+    for i, (alts, col) in enumerate(zip([alts_beg, alts_mid, alts_end], colnames)):
         cat_up.insert(loc=i+3, column=col, value=alts)
         cat_up[col] = cat_up[col].apply(alt_color)
 
-    cat_up.drop(columns=["Other ID", "Distance (kly)", "Constellation", "RA", "DEC"], inplace=True)
+    cat_up.drop(columns=COLS2DROP, inplace=True)
 
     # == Convert to HTML ================================================================= #
     html_str = cat_up.to_html(None, index=False, escape=False)
