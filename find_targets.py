@@ -213,7 +213,7 @@ if __name__ == "__main__":
         print(args)
 
     TOP = Path(__file__).parent
-    OUTPUT = Path(args.output) if args.output else Path("output.html")
+    OUTPUT = Path(args.output) if args.output else Path.cwd()/"output.html"
     FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
 
     # == Get location and time information ================================================================= #
