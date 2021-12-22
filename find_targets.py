@@ -245,8 +245,9 @@ if __name__ == "__main__":
         print(args)
 
     TOP = Path(__file__).parent
-    OUTPUT = Path(args.output).absolute() if args.output else Path("output.html").absolute()
-    FIGDIR = (TOP/"figs").relative_to(OUTPUT.parent)
+    OUTPUT = Path(args.output) if args.output else Path("output.html")
+    FIGDIR = (TOP/"figs")#.relative_to(OUTPUT.parent)
+    FIGDIR.mkdir(exist_ok=True, parents=True)
 
     # == Get location and time information =============================================== #
     lon, lat, tz = get_geoloc(args.currentlocation, args.verbose)
@@ -382,16 +383,16 @@ if __name__ == "__main__":
                 )
             )
             alts = obs.altaz(OBSTIME_RANGE, target=_coo).alt
-            altitudes_beg.append(alts[0].value)
-            altitudes_mid.append(alts[1].value)
-            altitudes_end.append(alts[2].value)
+            alts_beg.append(alts[0].value)
+            alts_mid.append(alts[1].value)
+            alts_end.append(alts[2].value)
 
         if args.verbose:
             print(f"{typ:>6s}: {len(kw['coo']):02d} objects")
 
     _radec = cat_up["RA"].astype(str) + "<br>" + cat_up["DEC"].astype(str)
     cat_up.sort_values(by=["Type", "DEC"], ascending=False, ignore_index=True, inplace=True)
-    cat_up.insert(loc=3, column="RADEC[˚]", value=_radec)
+    cat_up.insert(loc=3, column="RADEC[˚]", value=_radec.values)
     cat_up["ID"] = cat_up["ID"].apply(mk_wikilink)  # Add wiki links.
     cat_up["ID"] = "<b>" + cat_up["ID"] + "</b><br><br>" + cat_up["Other ID"]
 
@@ -437,14 +438,31 @@ if __name__ == "__main__":
 
     if len(coo_pl_up) > 0:
         for _coo in coo_pl_up:
-            aplt.plot_altitude(targets=_coo, observer=obs, time=OBSTIMES, ax=axs, min_altitude=args.min_alt,
-                               style_kwargs=dict(color=PLANETS[_coo.name], linewidth=6, alpha=0.3))
+            aplt.plot_altitude(
+                ax=axs,
+                targets=_coo,
+                observer=obs,
+                time=OBSTIMES,
+                min_altitude=args.min_alt,
+                style_kwargs=dict(
+                    color=PLANETS[_coo.name],
+                    linewidth=6,
+                    alpha=0.3
+                )
+            )
 
     fake_coo = coo_pl[0].copy()
     fake_coo.name = None
-    aplt.plot_altitude(targets=fake_coo, observer=obs, time=OBSTIMES, ax=axs,
-                       min_altitude=args.min_alt, airmass_yaxis=True, brightness_shading=True,
-                       style_kwargs=dict(linestyle=''))
+    aplt.plot_altitude(
+        ax=axs,
+        targets=fake_coo,
+        observer=obs,
+        time=OBSTIMES,
+        min_altitude=args.min_alt,
+        airmass_yaxis=True,
+        brightness_shading=True,
+        style_kwargs=dict(linestyle='')
+    )
 
     axs.axhline(30, color='k', linestyle='-')
     axs.legend(ncol=4, bbox_to_anchor=(0.5, -0.15), loc=9,
@@ -453,42 +471,3 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
 
-
-# %%
-# import requests
-# import re
-# from pathlib import Path
-# from bs4 import BeautifulSoup
-# import urllib.request
-
-
-# SAVEDIR = Path("figs/")
-# SAVEDIR.mkdir(exist_ok=True)
-
-# for m_or_c in ["Messier", "Caldwell"]:
-#     for i in range(110):
-#         name_ID = f"{m_or_c}_{i + 1}"
-#         savepath = SAVEDIR/f"{name_ID}.jpg"
-#         print(name_ID)
-#         if savepath.exists():
-#             continue
-#         if name_ID == "Messier_102":
-#             # Specifically, M102 is NGC 5866  (see https://en.wikipedia.org/wiki/Messier_102)
-#         url = "https://en.wikipedia.org/wiki/NGC_5866"
-#         else:
-#             url = f"https://en.wikipedia.org/wiki/{name_ID}"
-#         r = requests.get(url)
-#         soup = BeautifulSoup(r.text, 'html.parser')
-#         try:
-#             infoimgstr = soup.find_all(class_='infobox-image')[0].find_all('img')
-#         except IndexError:  # no class "infobox-image"
-#             infoimgstr = str(soup.find_all(class_='infobox')[0].find_all("img"))
-#         small_img_url = "https:" + re.split(r"src=", str(infoimgstr))[1][1:].split('"')[0]
-
-#         print(small_img_url)
-#         urllib.request.urlretrieve(small_img_url, savepath)
-#         # re.compile(r"src=").search(str(infoimg)).span
-#         # with open(f"figs/{name_ID}.jpg", "wb") as f:
-#         #     f.write(requests.get(small_img_url).content)
-
-# %%
