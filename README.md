@@ -21,9 +21,9 @@ Therefore, the default location/timezone is at Seoul, South Korea.
 
 
 
-## Install 
+## Install
 
-<details> 
+<details>
 <summary> Dependency </summary>
 You need:
 
@@ -86,9 +86,9 @@ $ python find_targets.py YYYY MM DD HH mm ss -d 2 -vA --min-alt 15 --currentloca
 
 #### 2-1. First run
 
-First, check for ALL the objects above the horizon on the day. I will test with 
+First, check for ALL the objects above the horizon on the day. I will test with
 
-* 2021-11-12 20:30:00 [KST] (given by ``2021 11 12 20 30``) 
+* 2021-11-12 20:30:00 [KST] (given by ``2021 11 12 20 30``)
 * duration of ± 1 hour (given by `-d 1`)
 * I want to see only those are above 30˚ ALL the time (use `-A`)
 * I want to remove those without common nickname (use `-N`)
@@ -130,7 +130,7 @@ It shows the ID (C: Caldwell, M: Messier), NGC/IC IDs, common names, etc. On top
 
 #### 2-2. Check for Candidates
 
-Now, considering the time limit and the interest of the audience (e.g., depending on the topic of the lecture given before the observation), **let's select few target candidates**. 
+Now, considering the time limit and the interest of the audience (e.g., depending on the topic of the lecture given before the observation), **let's select few target candidates**.
 
 On 2021-11-12, we have a lecture on Sombrero galaxy (M104), but it is not visible, unfortunately. Similar galaxies, S/E types, can be chosen from the list above. I will select **M31** (Andromeda), **M33** (Pinwheel galaxy), **C12** (Fireworks galaxy), **C23** (Silver silver galaxy). Also, let me choose an open cluster that may be attractive to general audience, **C13** (Owl cluster). I will also add two nebulae, the Cave Nebula, **C9**, and Little Dumbbell nebula, **M76**.
 
@@ -166,5 +166,5 @@ The plot looks simpler, but you have to note that M72 and M45 can be below altit
 
 #### 2-5. Planning
 
-Well, we have very many objects. **Moon**, **Jupiter**, **Saturn** are "must visit" objects. Thus, let me choose only five additional celestial objects: **M31** (Andromeda: as it will be mentioned in the 2021-11-12's lecture), **C23** (Silver Silver galaxy: edge on galaxy similar to Sombrero, the main topic of 2021-11-12's lecture), **M15** (globular cluster: as it is also related to the 2021-11-12's lecture), **C13** (Owl open cluster), and a nebula, **C9** (Cave nebula). 
+Well, we have very many objects. **Moon**, **Jupiter**, **Saturn** are "must visit" objects. Thus, let me choose only five additional celestial objects: **M31** (Andromeda: as it will be mentioned in the 2021-11-12's lecture), **C23** (Silver Silver galaxy: edge on galaxy similar to Sombrero, the main topic of 2021-11-12's lecture), **M15** (globular cluster: as it is also related to the 2021-11-12's lecture), **C13** (Owl open cluster), and a nebula, **C9** (Cave nebula).
 
