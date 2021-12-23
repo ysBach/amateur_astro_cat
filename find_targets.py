@@ -353,10 +353,10 @@ if __name__ == "__main__":
         lambda x: f'<img src="{FIGDIR}/{parseID(x)}_{int(x[1:]):03d}.jpg">'
     )
     cat_up["DSS"] = cat_up["ID"].apply(
-        lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=230px>'
+        lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}.jpg" width=200px>'
     )
     cat_up["DSS-zscale"] = cat_up["ID"].apply(
-        lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=230px>'
+        lambda x: f'<img src="{FIGDIR}/DSS-200px-{x}-zscale.jpg" width=200px>'
     )
     if args.verbose:
         print(f"{len(cat_up)} objects are visible by the user's criteria.")
