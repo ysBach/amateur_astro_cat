@@ -102,15 +102,20 @@ $ python find_targets.py 2021 11 12 20 30 00 -o first.html -d 1 -v -A -N
 Output:
 
 ```
-Abbreviations for "Type" column
-[...]
-
 Date & Time : 2021-11-12 20:30:00+09:00 (Asia/Seoul)
- lon , lat  : 127.00˚, 37.50˚
+lon , lat  : 127.00˚, 37.50˚
+Only those with common nicknames are selected.
 96 objects are selected by the user.
 26 objects are visible by the user's criteria.
-Catalog saved to first.html
+   gal: 08 objects
+   Neb: 13 objects
+    cl: 05 objects
+others: 00 objects
+* Catalog saved to first.html
 3 planets are visible under the user's criteria.
+
+Abbreviations for "Type" column
+[...]
 ```
 
 The plot is messy, but it is intended (because there are 26 objects!).
@@ -118,7 +123,7 @@ The plot is messy, but it is intended (because there are 26 objects!).
 ![](examples/Figure_1.png)
 
 * **NOTE**: line style is grouped based on the type of the objects (cluster, neubla, galaxy, otehrs)
-* **NOTE**: For the Moon, ``θ_full`` means the 180˚ - (Sun-Earth-Moon angle), i.e., the angle for the Moon to travel to become a full moon.
+* **NOTE**: For the Moon, ``θ_full`` means the 180˚ - (Sun-Earth-Moon angle), i.e., the angle for the Moon to travel to become a full moon.
 
 The output HTML will look something like this:
 
